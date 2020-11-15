@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "module": "ES6",
+      "noImplicitAny": true,
+      "lib": ["ESNext", "DOM"],
+      "strict": true
+    },
+    "files": ["cache.ts"]
+}

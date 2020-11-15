@@ -1,6 +1,30 @@
-class Cache {
-  constructor({ expirationMS = 60 * 1000, debug = false }) {
-    Cache.expirationMS = expirationMS;
+type CacheOptions = {
+  expirationMS?: number;
+  debug?: boolean;
+  handlers?: CacheHandlers
+}
+
+interface CacheHandlers {
+  onItemSet?: () => void,
+  onItemEvicted?: (key: string, value: unknown) => void;
+  onItemHit?: () => void,
+  onItemMiss?: () => void
+}
+
+class PantryCache {
+  expirationMS: number;
+  handlers: CacheHandlers;
+
+  _cache: Map<any, any>;
+  _expirations: Map<any, any>;
+  _hits: number;
+  _queries: number;
+
+  constructor({ expirationMS = 60 * 1000, debug = false, handlers }: CacheOptions = {}) {
+
+    this.expirationMS = expirationMS;
+    this.handlers = handlers ?? {};
+
     this._cache = new Map();
     this._expirations = new Map();
 
@@ -15,9 +39,12 @@ class Cache {
     }
   }
 
-  get(key) {
+  get(key: string) {
     if (this._cache.has(key)) {
       this._hits++;
+      this.handlers.onItemHit?.();
+    } else {
+      this.handlers.onItemMiss?.();
     }
     this._queries++;
     return this._cache.get(key);
@@ -31,7 +58,7 @@ class Cache {
    * @param {string} key
    * @param {any} val
    */
-  put(key, val) {
+  put(key: string, val: unknown) {
 
     // clear any cleanup previously scheduled
     const existingTimeoutID = this._expirations.get(key);
@@ -44,8 +71,11 @@ class Cache {
 
     // set a cleanup task to evict `key` after expirationMS
     this._expirations.set(key, setTimeout(() => {
+      this.handlers.onItemEvicted?.(key, this._cache.get(key));
       this._cache.delete(key);
-    }, Cache.expirationMS));
+    }, this.expirationMS));
+
+    this.handlers.onItemSet?.();
 
     return previousValue;
   }
