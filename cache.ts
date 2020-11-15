@@ -1,14 +1,14 @@
 type CacheOptions = {
   expirationMS?: number;
   debug?: boolean;
-  handlers?: CacheHandlers
-}
+  handlers?: CacheHandlers;
+};
 
 interface CacheHandlers {
-  onItemSet?: (key: string, value: unknown) => void,
+  onItemSet?: (key: string, value: unknown) => void;
   onItemEvicted?: (key: string, value: unknown) => void;
-  onItemHit?: (key: string) => void,
-  onItemMiss?: (key: string) => void
+  onItemHit?: (key: string) => void;
+  onItemMiss?: (key: string) => void;
 }
 
 class PantryCache {
@@ -20,8 +20,9 @@ class PantryCache {
   _hits: number;
   _queries: number;
 
-  constructor({ expirationMS = 60 * 1000, debug = false, handlers }: CacheOptions = {}) {
-
+  constructor(
+    { expirationMS = 60 * 1000, debug = false, handlers }: CacheOptions = {},
+  ) {
     this.expirationMS = expirationMS;
     this.handlers = handlers ?? {};
 
@@ -33,8 +34,8 @@ class PantryCache {
 
     if (debug) {
       const interval = setInterval(() => {
-        this.prettyPrint()
-        this.printHitRatio()
+        this.prettyPrint();
+        this.printHitRatio();
       }, 2000);
     }
   }
@@ -59,7 +60,6 @@ class PantryCache {
    * @param {any} val
    */
   put(key: string, val: unknown, expiresInMs = this.expirationMS) {
-
     // clear any cleanup previously scheduled
     const taskID = this.getEvictionTaskID(key);
     if (taskID) {
@@ -70,10 +70,13 @@ class PantryCache {
     this._cache.set(key, val);
 
     // set a cleanup task to evict `key` after expirationMS
-    this._expirations.set(key, setTimeout(() => {
-      this.handlers.onItemEvicted?.(key, this._cache.get(key));
-      this._cache.delete(key);
-    }, expiresInMs));
+    this._expirations.set(
+      key,
+      setTimeout(() => {
+        this.handlers.onItemEvicted?.(key, this._cache.get(key));
+        this._cache.delete(key);
+      }, expiresInMs),
+    );
 
     this.handlers.onItemSet?.(key, previousValue);
 
@@ -89,7 +92,9 @@ class PantryCache {
   }
 
   printHitRatio() {
-    console.log(`${this._hits} out of ${this._queries} queries (${this._hits / this._queries * 100}%)`);
+    console.log(
+      `${this._hits} out of ${this._queries} queries (${this._hits /
+        this._queries * 100}%)`,
+    );
   }
 }
-
