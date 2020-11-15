@@ -33,8 +33,8 @@ class PantryCache {
 
     if (debug) {
       const interval = setInterval(() => {
-        console.log('cache:', this._cache);
-        console.log(this.formatHitRatio())
+        this.prettyPrint()
+        this.printHitRatio()
       }, 2000);
     }
   }
@@ -58,12 +58,12 @@ class PantryCache {
    * @param {string} key
    * @param {any} val
    */
-  put(key: string, val: unknown) {
+  put(key: string, val: unknown, expiresInMs = this.expirationMS) {
 
     // clear any cleanup previously scheduled
-    const existingTimeoutID = this._expirations.get(key);
-    if (existingTimeoutID) {
-      clearTimeout(existingTimeoutID);
+    const taskID = this.getEvictionTaskID(key);
+    if (taskID) {
+      clearTimeout(taskID);
     }
 
     const previousValue = this._cache.get(key);
@@ -73,19 +73,23 @@ class PantryCache {
     this._expirations.set(key, setTimeout(() => {
       this.handlers.onItemEvicted?.(key, this._cache.get(key));
       this._cache.delete(key);
-    }, this.expirationMS));
+    }, expiresInMs));
 
     this.handlers.onItemSet?.(key, previousValue);
 
     return previousValue;
   }
 
-  getHitRatio() {
-    return this._hits / this._queries;
+  getEvictionTaskID(key: string) {
+    return this._expirations.get(key);
   }
 
-  formatHitRatio() {
-    return `${this._hits} out of ${this._queries} queries (${this.getHitRatio() * 100}%)`
+  prettyPrint() {
+    console.table(Array.from(this._cache.entries()));
+  }
+
+  printHitRatio() {
+    console.log(`${this._hits} out of ${this._queries} queries (${this._hits / this._queries * 100}%)`);
   }
 }
 
