@@ -3,7 +3,8 @@
       "module": "ES6",
       "noImplicitAny": true,
       "lib": ["ESNext", "DOM"],
-      "strict": true
+      "strict": true,
+      "esModuleInterop": true
     },
-    "files": ["cache.ts"]
+    "include": ["*.ts"]
 }

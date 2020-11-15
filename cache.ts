@@ -40,6 +40,10 @@ class PantryCache {
     }
   }
 
+  /**
+   * Get the cached value for the given key, if any
+   * @param key
+   */
   get(key: string) {
     if (this._cache.has(key)) {
       this._hits++;
@@ -55,9 +59,8 @@ class PantryCache {
    * Set a value at the given key
    * Returns the previous value, if any
    * Also manages eviction tasks for keys
-   *
-   * @param {string} key
-   * @param {any} val
+   * @param key
+   * @param val
    */
   put(key: string, val: unknown, expiresInMs = this.expirationMS) {
     // clear any cleanup previously scheduled
@@ -98,3 +101,5 @@ class PantryCache {
     );
   }
 }
+
+export default PantryCache;
