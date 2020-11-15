@@ -64,7 +64,7 @@ class PantryCache {
    */
   put(key: string, val: unknown, expiresInMs = this.expirationMS) {
     // clear any cleanup previously scheduled
-    const taskID = this.getEvictionTaskID(key);
+    const taskID = this._expirations.get(key);
     if (taskID) {
       clearTimeout(taskID);
     }
@@ -84,10 +84,6 @@ class PantryCache {
     this.handlers.onItemSet?.(key, previousValue);
 
     return previousValue;
-  }
-
-  getEvictionTaskID(key: string) {
-    return this._expirations.get(key);
   }
 
   prettyPrint() {
