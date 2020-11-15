@@ -19,10 +19,10 @@ new PantryCache({
 
 #### Set
 ```ts
-PantryCache.put(key: string, value: any, expiresInMS = DEFAULT_EXPIRATION) // returns previous value, if any
+pantryCache.put(key: string, value: any, expiresInMS = DEFAULT_EXPIRATION) // returns previous value, if any
 ```
 
 #### Get
 ```ts
-PantryCache.get(key: string)
+pantryCache.get(key: string)
 ```
