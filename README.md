@@ -5,7 +5,7 @@ expiration based cache
 
 #### Initialize
 ```ts
-new PantryCache({
+const pantry = new PantryCache({
   debug?: boolean,
   expirationMS?: number,
   handlers?: {
@@ -19,10 +19,11 @@ new PantryCache({
 
 #### Set
 ```ts
-pantryCache.put(key: string, value: any, expiresInMS = DEFAULT_EXPIRATION) // returns previous value, if any
+// returns previous value, if any
+pantry.put(key: string, value: any, expiresInMS = DEFAULT_EXPIRATION)
 ```
 
 #### Get
 ```ts
-pantryCache.get(key: string)
+pantry.get(key: string)
 ```
