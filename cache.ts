@@ -5,10 +5,10 @@ type CacheOptions = {
 }
 
 interface CacheHandlers {
-  onItemSet?: () => void,
+  onItemSet?: (key: string, value: unknown) => void,
   onItemEvicted?: (key: string, value: unknown) => void;
-  onItemHit?: () => void,
-  onItemMiss?: () => void
+  onItemHit?: (key: string) => void,
+  onItemMiss?: (key: string) => void
 }
 
 class PantryCache {
@@ -42,9 +42,9 @@ class PantryCache {
   get(key: string) {
     if (this._cache.has(key)) {
       this._hits++;
-      this.handlers.onItemHit?.();
+      this.handlers.onItemHit?.(key);
     } else {
-      this.handlers.onItemMiss?.();
+      this.handlers.onItemMiss?.(key);
     }
     this._queries++;
     return this._cache.get(key);
@@ -75,7 +75,7 @@ class PantryCache {
       this._cache.delete(key);
     }, this.expirationMS));
 
-    this.handlers.onItemSet?.();
+    this.handlers.onItemSet?.(key, previousValue);
 
     return previousValue;
   }
@@ -88,3 +88,4 @@ class PantryCache {
     return `${this._hits} out of ${this._queries} queries (${this.getHitRatio() * 100}%)`
   }
 }
+
